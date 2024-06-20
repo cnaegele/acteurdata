@@ -1,4 +1,4 @@
-<style scoped>
+<style>
   .coltitre {
     font-weight: bold;
   }
@@ -7,6 +7,10 @@
   }
   .colinfo {
     font-size: small;
+  }
+  .aregcom {
+    text-decoration: none;
+    color: inherit;
   }
 </style>
 
@@ -60,11 +64,13 @@ const transformActeurDCompl = (acteurDataComplement) => {
     let idTypeComplementPrec = idTypeComplement
     let typeComplement = acteurDataComplement[0].acteurcomplementtype
     let urlRegCom
-    let complement, complementplus
+    let complement = '', complementplus
     if (idTypeComplement == '22') {
       urlRegCom = acteurDataComplement[0].acteurcomplement
     } else if (idTypeComplement == '8') {
       complement = `<a class="aregcom" href="${acteurDataComplement[0].acteurcomplement}" target="_blank">${acteurDataComplement[0].acteurcomplement}</a>`
+    } else if (idTypeComplement == '24') {
+      complement = `<a class="aregcom" href="https://debiteur.lausanne.ch/debiteur-ui/details-debiteur/${acteurDataComplement[0].acteurcomplement}" target="_blank">${acteurDataComplement[0].acteurcomplement}</a>`
     } else {
       complement = acteurDataComplement[0].acteurcomplement
     }
@@ -72,26 +78,33 @@ const transformActeurDCompl = (acteurDataComplement) => {
     for (let i=1; i<acteurDataComplement.length; i++) {
       idTypeComplement = acteurDataComplement[i].acteurcomplementtypeid
       if (idTypeComplement == '22') {
-        urlRegCom = acteurDataComplement[i].acteurcomplement 
+        urlRegCom = acteurDataComplement[i].acteurcomplement
+        idTypeComplementPrec = '22' 
       } else {
         if (idTypeComplement != idTypeComplementPrec) {
-          oActeurDCompl = {
-            "acteurcomplementtype" : typeComplement, 
-            "acteurcomplement" : complement, 
+          if (idTypeComplementPrec != 22) {
+            oActeurDCompl = {
+              "acteurcomplementtype" : typeComplement, 
+              "acteurcomplement" : complement, 
+            }
+            aActeurDCompl.push(oActeurDCompl)
           }
-          aActeurDCompl.push(oActeurDCompl)
           idTypeComplementPrec = idTypeComplement
           typeComplement = acteurDataComplement[i].acteurcomplementtype
           if (idTypeComplement == '21') {
             complement = `<a class="aregcom" href="${urlRegCom}" target="_blank">${acteurDataComplement[i].acteurcomplement}</a>`
           } else if (idTypeComplement == '8') {
             complement = `<a class="aregcom" href="${acteurDataComplement[i].acteurcomplement}" target="_blank">${acteurDataComplement[i].acteurcomplement}</a>`
+          } else if (idTypeComplement == '24') {
+            complement = `<a class="aregcom" href="https://debiteur.lausanne.ch/debiteur-ui/details-debiteur/${acteurDataComplement[i].acteurcomplement}" target="_blank">${acteurDataComplement[i].acteurcomplement}</a>`
           } else {
-            complement = acteurDataComplement[i].acteurcomplement
-          }
+              complement = acteurDataComplement[i].acteurcomplement
+            }
         } else {
           if (idTypeComplement == '8') {
             complementplus = `<a class="aregcom" href="${acteurDataComplement[i].acteurcomplement}" target="_blank">${acteurDataComplement[i].acteurcomplement}</a>`
+          } else if (idTypeComplement == '24') {
+            complement = `<a class="aregcom" href="https://debiteur.lausanne.ch/debiteur-ui/details-debiteur/${acteurDataComplement[i].acteurcomplement}" target="_blank">${acteurDataComplement[i].acteurcomplement}</a>`
           } else {
             complementplus = acteurDataComplement[i].acteurcomplement
           }
@@ -99,10 +112,11 @@ const transformActeurDCompl = (acteurDataComplement) => {
         }
       }
     }
+    typeComplement = typeComplement.replace("ABACUS", "")
     oActeurDCompl = {
-          "acteurcomplementtype" : typeComplement, 
-          "acteurcomplement" : complement, 
-        }
+      "acteurcomplementtype" : typeComplement, 
+      "acteurcomplement" : complement, 
+    }
     aActeurDCompl.push(oActeurDCompl) 
   } 
   return aActeurDCompl

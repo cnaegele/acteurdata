@@ -1,17 +1,21 @@
 <template>
   <v-app>
     <v-main>
+      <p>&nbsp;</p>
+      <p>
       <ActeurData 
-        acteurId="35060"
+        acteurId="59456"
       >
       </ActeurData>
+      </p>
+      <p>&nbsp;</p>
+      <p>
       <ActeurData 
         acteurId="144"
       >
       </ActeurData>
+      </p>
     </v-main>
-
-    <AppFooter />
   </v-app>
 </template>
 

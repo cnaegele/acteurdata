@@ -23,6 +23,15 @@ export async function getActeurDataComplement(idActeur) {
         })
     return response.data
 }
+export async function getActeurDataRole(idActeur) {
+    const urladr = `${g_devurl}${g_pathurl}acteur_datarole.php`
+    const params = new URLSearchParams([['idacteur', idActeur]])
+    const response = await axios.get(urladr, { params })
+        .catch(function (error) {
+            return traiteAxiosError(error)
+        })
+    return response.data
+}
 
 function traiteAxiosError(error) {
     if (error.response) {

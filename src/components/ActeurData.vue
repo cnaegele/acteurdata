@@ -8,14 +8,21 @@
   .colinfo {
     font-size: small;
   }
-  .aregcom {
+  a.ago {
     text-decoration: none;
     color: inherit;
+  }
+  .bactif0 {
+    font-style: italic;
+    color: rgb(252, 182, 182)
+  }
+  .bactif1 {
+    font-style: normal;
   }
 </style>
 
 <template>
-  <v-container class="bg-surface-variant">
+  <v-container>
     <v-row v-if="acteurD.bactif == '0'" no-gutters>
       <v-col cols="12" md="12" class="colinfoimportant">Acteur désactive <span v-if="acteurD.datedesactivation !== null"> le {{ acteurD.datedesactivation }}</span></v-col>
     </v-row>
@@ -36,6 +43,35 @@
       <v-col cols="12" md="10"><div v-html="complement.acteurcomplement"></div></v-col> <!-- v-html pour garder les <br/>-->
     </v-row>
     <v-row no-gutters>
+      <v-col cols="12" md="12">
+        <v-expansion-panels v-if="nbrRoles > 0">
+          <v-expansion-panel>
+            <v-expansion-panel-title class="coltitre">Rôles ({{ nbrRoles }})</v-expansion-panel-title>
+            <v-expansion-panel-text>
+              <v-expansion-panels>
+                <v-expansion-panel v-for="typerole in acteurDRole">
+                  <v-expansion-panel-title>{{ typerole.acteurrolerole }} ({{ typerole.acteurnbrelements }})</v-expansion-panel-title>
+                  <v-expansion-panel-text>
+                    <v-container>
+                      <v-row v-for="roleel in typerole.acteurroleelements" no-gutters>
+                        <v-col cols="12" md="2">{{ roleel.aroleobjet }}</v-col>
+                        <v-col cols="12" md="6"
+                          :class="`bactif${roleel.aroleobjetbactif}`"
+                          v-html="`<a class='ago' target='_blank' href='${roleel.aroleobjeturl}'><span  class='bactif${roleel.aroleobjetbactif}'>${roleel.aroleobjetnom}</span></a>`"
+                        >
+                        </v-col>
+                        <v-col cols="12" md="2">{{ roleel.aroledatecreation }}</v-col>  
+                      </v-row>  
+                    </v-container>  
+                  </v-expansion-panel-text>
+                </v-expansion-panel>  
+              </v-expansion-panels>  
+            </v-expansion-panel-text>
+          </v-expansion-panel>        
+        </v-expansion-panels>
+      </v-col>
+    </v-row>
+    <v-row no-gutters>
       <v-col cols="12" md="12" class="colinfo">Création le {{ acteurD.datecreation }}. <span v-if="acteurD.datemodification !== null"> Dernière modification le {{ acteurD.datemodification }}.</span> id goéland: {{ acteurD.acteurid }}</v-col>
     </v-row>
   </v-container>
@@ -43,17 +79,20 @@
 
 <script setup>
 import { ref } from 'vue'
-import { getActeurData, getActeurDataComplement } from '../axioscalls.js'
+import { getActeurData, getActeurDataComplement, getActeurDataRole } from '../axioscalls.js'
 const props = defineProps({
   acteurId: String,
 })
 const acteurId = ref(props.acteurId)
 const acteurData = await getActeurData(acteurId.value)
 const acteurDataComplement = await getActeurDataComplement(acteurId.value)
+const acteurDataRole = await getActeurDataRole(acteurId.value)
 //console.log(acteurData)
 //console.log(acteurDataComplement)
+//console.log(acteurDataRole)
 const acteurD = acteurData[0]
 
+//Compléments
 //tout le binz ci-dessous pour afficher plus joli les cas avec plusieurs type de complément identique
 //et les cas spéciaux avec un url 
 const transformActeurDCompl = (acteurDataComplement) => {
@@ -68,9 +107,9 @@ const transformActeurDCompl = (acteurDataComplement) => {
     if (idTypeComplement == '22') {
       urlRegCom = acteurDataComplement[0].acteurcomplement
     } else if (idTypeComplement == '8') {
-      complement = `<a class="aregcom" href="${acteurDataComplement[0].acteurcomplement}" target="_blank">${acteurDataComplement[0].acteurcomplement}</a>`
+      complement = `<a class="ago" href="${acteurDataComplement[0].acteurcomplement}" target="_blank">${acteurDataComplement[0].acteurcomplement}</a>`
     } else if (idTypeComplement == '24') {
-      complement = `<a class="aregcom" href="https://debiteur.lausanne.ch/debiteur-ui/details-debiteur/${acteurDataComplement[0].acteurcomplement}" target="_blank">${acteurDataComplement[0].acteurcomplement}</a>`
+      complement = `<a class="ago" href="https://debiteur.lausanne.ch/debiteur-ui/details-debiteur/${acteurDataComplement[0].acteurcomplement}" target="_blank">${acteurDataComplement[0].acteurcomplement}</a>`
     } else {
       complement = acteurDataComplement[0].acteurcomplement
     }
@@ -92,19 +131,19 @@ const transformActeurDCompl = (acteurDataComplement) => {
           idTypeComplementPrec = idTypeComplement
           typeComplement = acteurDataComplement[i].acteurcomplementtype
           if (idTypeComplement == '21') {
-            complement = `<a class="aregcom" href="${urlRegCom}" target="_blank">${acteurDataComplement[i].acteurcomplement}</a>`
+            complement = `<a class="ago" href="${urlRegCom}" target="_blank">${acteurDataComplement[i].acteurcomplement}</a>`
           } else if (idTypeComplement == '8') {
-            complement = `<a class="aregcom" href="${acteurDataComplement[i].acteurcomplement}" target="_blank">${acteurDataComplement[i].acteurcomplement}</a>`
+            complement = `<a class="ago" href="${acteurDataComplement[i].acteurcomplement}" target="_blank">${acteurDataComplement[i].acteurcomplement}</a>`
           } else if (idTypeComplement == '24') {
-            complement = `<a class="aregcom" href="https://debiteur.lausanne.ch/debiteur-ui/details-debiteur/${acteurDataComplement[i].acteurcomplement}" target="_blank">${acteurDataComplement[i].acteurcomplement}</a>`
+            complement = `<a class="ago" href="https://debiteur.lausanne.ch/debiteur-ui/details-debiteur/${acteurDataComplement[i].acteurcomplement}" target="_blank">${acteurDataComplement[i].acteurcomplement}</a>`
           } else {
               complement = acteurDataComplement[i].acteurcomplement
             }
         } else {
           if (idTypeComplement == '8') {
-            complementplus = `<a class="aregcom" href="${acteurDataComplement[i].acteurcomplement}" target="_blank">${acteurDataComplement[i].acteurcomplement}</a>`
+            complementplus = `<a class="ago" href="${acteurDataComplement[i].acteurcomplement}" target="_blank">${acteurDataComplement[i].acteurcomplement}</a>`
           } else if (idTypeComplement == '24') {
-            complement = `<a class="aregcom" href="https://debiteur.lausanne.ch/debiteur-ui/details-debiteur/${acteurDataComplement[i].acteurcomplement}" target="_blank">${acteurDataComplement[i].acteurcomplement}</a>`
+            complement = `<a class="ago" href="https://debiteur.lausanne.ch/debiteur-ui/details-debiteur/${acteurDataComplement[i].acteurcomplement}" target="_blank">${acteurDataComplement[i].acteurcomplement}</a>`
           } else {
             complementplus = acteurDataComplement[i].acteurcomplement
           }
@@ -123,4 +162,33 @@ const transformActeurDCompl = (acteurDataComplement) => {
 }
 const acteurDCompl = transformActeurDCompl(acteurDataComplement)
 //console.log(acteurDCompl)
+
+//Rôles
+const nbrRoles = acteurDataRole.length
+//Tout ce binz pour regrouper par rôle
+const transformActeurDRole = (acteurDataRole) => {
+  const aActeurDRole = []
+  let oActeurDRole
+  //Liste distincte des rôles
+  const aacRoleRole = [...new Set(acteurDataRole.map(item => item.acrolerole))]
+  const nbracRoleRole = aacRoleRole.length
+  //console.log(aacRoleRole)
+  //Regroupement par rôle
+  let role, nbrEls
+  for (let i=0; i<nbracRoleRole; i++) {
+    role = aacRoleRole[i]
+    const roleEls = acteurDataRole.filter(item => item.acrolerole === role);
+    nbrEls = roleEls.length
+    oActeurDRole = {
+      "acteurrolerole" : role,
+      "acteurnbrelements" : nbrEls,
+      "acteurroleelements" : roleEls
+    }
+    aActeurDRole.push(oActeurDRole)
+  }
+  return aActeurDRole
+}
+const acteurDRole = transformActeurDRole(acteurDataRole)
+console.log(acteurDRole)
+
 </script>

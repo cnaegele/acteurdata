@@ -5,6 +5,14 @@ if (import.meta.env.DEV) {
 }
 const g_pathurl = '/goeland/acteur/ajax/'
 
+export async function getDataUserInfo() {
+    const urlui = `${g_devurl}/goeland/gestion_spec/g_login_f5.php`
+    const response = await axios.get(urlui)
+        .catch(function (error) {
+            traiteAxiosError(error, lesData)
+        })   
+    return response.data
+}
 export async function getActeurData(idActeur) {
     const urlad = `${g_devurl}${g_pathurl}acteur_data.php`
     const params = new URLSearchParams([['idacteur', idActeur]])
@@ -23,9 +31,12 @@ export async function getActeurDataComplement(idActeur) {
         })
     return response.data
 }
-export async function getActeurDataRole(idActeur) {
+export async function getActeurDataRole(idActeur, idemploye) {
+    if (idemploye === undefined || idemploye === null) {
+        idemploye = 0
+    }
     const urladr = `${g_devurl}${g_pathurl}acteur_datarole.php`
-    const params = new URLSearchParams([['idacteur', idActeur]])
+    const params = new URLSearchParams([['idacteur', idActeur], ['idemploye', idemploye]])
     const response = await axios.get(urladr, { params })
         .catch(function (error) {
             return traiteAxiosError(error)

@@ -5,6 +5,10 @@
   .colinfoimportant {
     color: red;
   }
+  .colmessage {
+    font-style: italic;
+    font-weight: lighter;
+  }
   .colinfo {
     font-size: small;
   }
@@ -18,6 +22,9 @@
   }
   .bactif1 {
     font-style: normal;
+  }
+  .goroledate {
+    text-align: right;
   }
 </style>
 
@@ -34,7 +41,7 @@
       <v-col cols="12" md="2" class="coltitre">Adresse</v-col>
       <v-col cols="12" md="10"><div v-html="acteurD.acteuradresse"></div></v-col> <!-- v-html pour garder les <br/>-->
     </v-row>
-    <v-row v-if="acteurD.acteurcommentaire !== null" no-gutters>
+    <v-row v-if="acteurD.acteurcommentaire !== undefined && acteurD.acteurcommentaire !== null" no-gutters>
       <v-col cols="12" md="2" class="coltitre">Commentaire</v-col>
       <v-col cols="12" md="10"><div v-html="acteurD.acteurcommentaire"></div></v-col> <!-- v-html pour garder les <br/>-->
     </v-row>
@@ -55,12 +62,25 @@
                     <v-container>
                       <v-row v-for="roleel in typerole.acteurroleelements" no-gutters>
                         <v-col cols="12" md="2">{{ roleel.aroleobjet }}</v-col>
-                        <v-col cols="12" md="6"
+                        <v-col cols="12" md="8"
+                          v-if="roleel.aroleobjetnom !== null && roleel.aroleobjetdroitacces > 0"
                           :class="`bactif${roleel.aroleobjetbactif}`"
                           v-html="`<a class='ago' target='_blank' href='${roleel.aroleobjeturl}'><span  class='bactif${roleel.aroleobjetbactif}'>${roleel.aroleobjetnom}</span></a>`"
                         >
                         </v-col>
-                        <v-col cols="12" md="2">{{ roleel.aroledatecreation }}</v-col>  
+                        <v-col cols="12" md="8"
+                          v-else-if="roleel.aroleobjetnom !== null && roleel.aroleobjetdroitacces == 0"
+                          class="colmessage"
+                        >
+                          données confidentielles 
+                        </v-col>
+                        <v-col cols="12" md="8"
+                          v-else
+                          class="colmessage"
+                        >
+                          {{ roleel.aroleobjet }} {{ roleel.aroleidobjet }} n'existe plus. Prévenir le support goéland 
+                        </v-col>
+                        <v-col cols="12" md="2" class="goroledate">{{ roleel.aroledatecreation }}</v-col>  
                       </v-row>  
                     </v-container>  
                   </v-expansion-panel-text>
@@ -79,19 +99,22 @@
 
 <script setup>
 import { ref } from 'vue'
-import { getActeurData, getActeurDataComplement, getActeurDataRole } from '../axioscalls.js'
+import { getDataUserInfo, getActeurData, getActeurDataComplement, getActeurDataRole } from '../axioscalls.js'
 const props = defineProps({
   acteurId: String,
 })
 const acteurId = ref(props.acteurId)
+const userInfo = await getDataUserInfo()
+const idEmploye = userInfo.id_employe
 const acteurData = await getActeurData(acteurId.value)
 const acteurDataComplement = await getActeurDataComplement(acteurId.value)
-const acteurDataRole = await getActeurDataRole(acteurId.value)
+const acteurDataRole = await getActeurDataRole(acteurId.value, idEmploye)
+//console.log(userInfo)
 //console.log(acteurData)
 //console.log(acteurDataComplement)
-//console.log(acteurDataRole)
-const acteurD = acteurData[0]
+console.log(acteurDataRole)
 
+const acteurD = acteurData[0]
 //Compléments
 //tout le binz ci-dessous pour afficher plus joli les cas avec plusieurs type de complément identique
 //et les cas spéciaux avec un url 
@@ -189,6 +212,6 @@ const transformActeurDRole = (acteurDataRole) => {
   return aActeurDRole
 }
 const acteurDRole = transformActeurDRole(acteurDataRole)
-console.log(acteurDRole)
+//console.log(acteurDRole)
 
 </script>

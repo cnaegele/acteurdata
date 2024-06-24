@@ -99,7 +99,12 @@
 
 <script setup>
 import { ref } from 'vue'
-import { getDataUserInfo, getActeurData, getActeurDataComplement, getActeurDataRole } from '../axioscalls.js'
+import { getDataUserInfo, 
+        getActeurData, 
+        getActeurDataAdresse, 
+        getActeurDataComplement,
+        getActeurDataActeurLie, 
+        getActeurDataRole } from '../axioscalls.js'
 const props = defineProps({
   acteurId: String,
 })
@@ -107,11 +112,15 @@ const acteurId = ref(props.acteurId)
 const userInfo = await getDataUserInfo()
 const idEmploye = userInfo.id_employe
 const acteurData = await getActeurData(acteurId.value)
+const acteurDataAdresse = await getActeurDataAdresse(acteurId.value)
 const acteurDataComplement = await getActeurDataComplement(acteurId.value)
+const acteurDataActeurLie = await getActeurDataActeurLie(acteurId.value)
 const acteurDataRole = await getActeurDataRole(acteurId.value, idEmploye)
 //console.log(userInfo)
 //console.log(acteurData)
+console.log(acteurDataAdresse)
 //console.log(acteurDataComplement)
+console.log(acteurDataActeurLie)
 //console.log(acteurDataRole)
 
 const acteurD = acteurData[0]

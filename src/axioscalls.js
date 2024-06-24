@@ -22,10 +22,28 @@ export async function getActeurData(idActeur) {
         })
     return response.data
 }
+export async function getActeurDataAdresse(idActeur) {
+    const urlada = `${g_devurl}${g_pathurl}acteur_dataadresse.php`
+    const params = new URLSearchParams([['idacteur', idActeur]])
+    const response = await axios.get(urlada, { params })
+        .catch(function (error) {
+            return traiteAxiosError(error)
+        })
+    return response.data
+}
 export async function getActeurDataComplement(idActeur) {
     const urladc = `${g_devurl}${g_pathurl}acteur_datacomplement.php`
     const params = new URLSearchParams([['idacteur', idActeur]])
     const response = await axios.get(urladc, { params })
+        .catch(function (error) {
+            return traiteAxiosError(error)
+        })
+    return response.data
+}
+export async function getActeurDataActeurLie(idActeur) {
+    const urladal = `${g_devurl}${g_pathurl}acteur_dataacteurlie.php`
+    const params = new URLSearchParams([['idacteur', idActeur]])
+    const response = await axios.get(urladal, { params })
         .catch(function (error) {
             return traiteAxiosError(error)
         })

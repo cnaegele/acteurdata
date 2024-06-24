@@ -31,7 +31,7 @@
 <template>
   <v-container>
     <v-row v-if="acteurD.bactif == '0'" no-gutters>
-      <v-col cols="12" md="12" class="colinfoimportant">Acteur désactive <span v-if="acteurD.datedesactivation !== null"> le {{ acteurD.datedesactivation }}</span></v-col>
+      <v-col cols="12" md="12" class="colinfoimportant">Acteur désactive <span v-if="acteurD.datedesactivation !== undefined && acteurD.datedesactivation !== null"> le {{ acteurD.datedesactivation }}</span></v-col>
     </v-row>
     <v-row no-gutters>
       <v-col cols="12" md="2" class="coltitre">Nom</v-col>
@@ -112,7 +112,7 @@ const acteurDataRole = await getActeurDataRole(acteurId.value, idEmploye)
 //console.log(userInfo)
 //console.log(acteurData)
 //console.log(acteurDataComplement)
-console.log(acteurDataRole)
+//console.log(acteurDataRole)
 
 const acteurD = acteurData[0]
 //Compléments

@@ -76,7 +76,7 @@
             <v-expansion-panel-text>
               <v-container>
                 <v-row v-for="acteurlie in acteurDataActeurLie">
-                  <v-col cols="12" md="2">{{ acteurlie.actaclisenslien }}</v-col>
+                  <v-col cols="12" md="2">{{ acteurlie.actaclrolecontact }}</v-col>
                   <v-col cols="12" md="8">{{ acteurlie.actaclnom }}</v-col>
                 </v-row>
                 </v-container>

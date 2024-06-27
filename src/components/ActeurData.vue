@@ -49,9 +49,45 @@
       <v-col cols="12" md="2" class="coltitre">{{ complement.acteurcomplementtype }}</v-col>
       <v-col cols="12" md="10"><div v-html="complement.acteurcomplement"></div></v-col> <!-- v-html pour garder les <br/>-->
     </v-row>
-    <v-row no-gutters>
+    <v-row no-gutters v-if="acteurDataAdresse.length > 1">
       <v-col cols="12" md="12">
-        <v-expansion-panels v-if="nbrRoles > 0">
+        <v-expansion-panels>
+          <v-expansion-panel>
+            <v-expansion-panel-title>détail adresses ({{ acteurDataAdresse.length }})</v-expansion-panel-title>
+            <v-expansion-panel-text>
+              <div v-for="adresse in acteurDataAdresse">
+                <div class="colinfo" v-if="adresse.acadcalification !== null">{{ adresse.acadcalification }}</div>
+                <div v-if="adresse.actadruenumero !== null">{{ adresse.actadruenumero }}</div>
+                <div v-if="adresse.actadcpville !== null">{{ adresse.actadcpville }}</div>
+                <div v-if="adresse.actadpays !== 'Suisse'">{{ adresse.actadpays }}</div>
+                <div v-if="adresse.actadcomplement !== null">{{ adresse.actadcomplement }}</div>
+                <div>&nbsp;</div>
+              </div>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+        </v-expansion-panels>
+      </v-col>
+    </v-row>
+    <v-row no-gutters v-if="acteurDataActeurLie.length > 0">
+      <v-col cols="12" md="12">
+        <v-expansion-panels>
+          <v-expansion-panel>
+            <v-expansion-panel-title class="coltitre">Acteurs liés ({{ acteurDataActeurLie.length }})</v-expansion-panel-title>
+            <v-expansion-panel-text>
+              <v-container>
+                <v-row v-for="acteurlie in acteurDataActeurLie">
+                  <v-col cols="12" md="2">{{ acteurlie.actaclisenslien }}</v-col>
+                  <v-col cols="12" md="8">{{ acteurlie.actaclnom }}</v-col>
+                </v-row>
+                </v-container>
+            </v-expansion-panel-text>
+          </v-expansion-panel>        
+        </v-expansion-panels>
+      </v-col>
+    </v-row>
+    <v-row no-gutters v-if="nbrRoles > 0">
+      <v-col cols="12" md="12">
+        <v-expansion-panels>
           <v-expansion-panel>
             <v-expansion-panel-title class="coltitre">Rôles ({{ nbrRoles }})</v-expansion-panel-title>
             <v-expansion-panel-text>
@@ -118,9 +154,9 @@ const acteurDataActeurLie = await getActeurDataActeurLie(acteurId.value)
 const acteurDataRole = await getActeurDataRole(acteurId.value, idEmploye)
 //console.log(userInfo)
 //console.log(acteurData)
-console.log(acteurDataAdresse)
+//console.log(acteurDataAdresse)
 //console.log(acteurDataComplement)
-console.log(acteurDataActeurLie)
+//console.log(acteurDataActeurLie)
 //console.log(acteurDataRole)
 
 const acteurD = acteurData[0]

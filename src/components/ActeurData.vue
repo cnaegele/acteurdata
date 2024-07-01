@@ -29,7 +29,7 @@
 </style>
 
 <template>
-  <v-container>
+  <v-container v-if="bInGroupDocumentAucunAcces === 0">
     <v-row v-if="acteurD.bactif == '0'" no-gutters>
       <v-col cols="12" md="12" class="colinfoimportant">Acteur désactive <span v-if="acteurD.datedesactivation !== undefined && acteurD.datedesactivation !== null"> le {{ acteurD.datedesactivation }}</span></v-col>
     </v-row>
@@ -83,9 +83,7 @@
             </v-expansion-panel-text>
           </v-expansion-panel>        
         </v-expansion-panels>
-      </v-col>
-    </v-row>
-    <v-row no-gutters v-if="nbrRoles > 0">
+      </v-col>bInGroupDocumentAucunAcces
       <v-col cols="12" md="12">
         <v-expansion-panels>
           <v-expansion-panel>
@@ -131,6 +129,9 @@
       <v-col cols="12" md="12" class="colinfo">Création le {{ acteurD.datecreation }}. <span v-if="acteurD.datemodification !== null"> Dernière modification le {{ acteurD.datemodification }}.</span> id goéland: {{ acteurD.acteurid }}</v-col>
     </v-row>
   </v-container>
+  <div v-else>
+    <h3>Vous n'avez pas l'autorisation d'accèder aux données acteurs de goéland</h3>  
+  </div>
 </template>
 
 <script setup>
@@ -145,8 +146,9 @@ const props = defineProps({
   acteurId: String,
 })
 const acteurId = ref(props.acteurId)
-const userInfo = await getDataUserInfo()
+const userInfo = await getDataUserInfo('DocumentAucunAcces')
 const idEmploye = userInfo.id_employe
+const bInGroupDocumentAucunAcces = ref(userInfo.bingroupe)
 const acteurData = await getActeurData(acteurId.value)
 const acteurDataAdresse = await getActeurDataAdresse(acteurId.value)
 const acteurDataComplement = await getActeurDataComplement(acteurId.value)

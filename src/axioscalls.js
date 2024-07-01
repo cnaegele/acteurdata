@@ -5,9 +5,10 @@ if (import.meta.env.DEV) {
 }
 const g_pathurl = '/goeland/acteur/ajax/'
 
-export async function getDataUserInfo() {
+export async function getDataUserInfo(groupeSecurite) {
+    const params = new URLSearchParams([['groupesecurite', groupeSecurite]])
     const urlui = `${g_devurl}/goeland/gestion_spec/g_login_f5.php`
-    const response = await axios.get(urlui)
+    const response = await axios.get(urlui, { params })
         .catch(function (error) {
             traiteAxiosError(error, lesData)
         })   

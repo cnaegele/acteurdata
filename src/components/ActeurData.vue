@@ -83,7 +83,7 @@
             </v-expansion-panel-text>
           </v-expansion-panel>        
         </v-expansion-panels>
-      </v-col>bInGroupDocumentAucunAcces
+      </v-col>
       <v-col cols="12" md="12">
         <v-expansion-panels>
           <v-expansion-panel>

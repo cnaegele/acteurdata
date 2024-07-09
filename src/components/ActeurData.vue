@@ -29,7 +29,7 @@
 </style>
 
 <template>
-  <v-container v-if="bInGroupDocumentAucunAcces === 0">
+  <v-container v-if="bInGroupDocumentAucunAcces !== 1">
     <v-row v-if="acteurD.bactif == '0'" no-gutters>
       <v-col cols="12" md="12" class="colinfoimportant">Acteur désactive <span v-if="acteurD.datedesactivation !== undefined && acteurD.datedesactivation !== null"> le {{ acteurD.datedesactivation }}</span></v-col>
     </v-row>
@@ -84,6 +84,8 @@
           </v-expansion-panel>        
         </v-expansion-panels>
       </v-col>
+    </v-row>
+    <v-row no-gutters v-if="nbrRoles > 0">
       <v-col cols="12" md="12">
         <v-expansion-panels>
           <v-expansion-panel>
@@ -260,5 +262,4 @@ const transformActeurDRole = (acteurDataRole) => {
 }
 const acteurDRole = transformActeurDRole(acteurDataRole)
 //console.log(acteurDRole)
-
 </script>

@@ -29,6 +29,7 @@
 </style>
 
 <template>
+<div v-if="messageErreur == ''">
   <v-container v-if="bInGroupDocumentAucunAcces !== 1">
     <v-row v-if="acteurD.bactif == '0'" no-gutters>
       <v-col cols="12" md="12" class="colinfoimportant">Acteur désactive <span v-if="acteurD.datedesactivation !== undefined && acteurD.datedesactivation !== null"> le {{ acteurD.datedesactivation }}</span></v-col>
@@ -134,6 +135,8 @@
   <div v-else>
     <h3>Vous n'avez pas l'autorisation d'accèder aux données acteurs de goéland</h3>  
   </div>
+</div>
+<div else v-html="messageErreur"></div>
 </template>
 
 <script setup>
@@ -147,119 +150,161 @@ import { getDataUserInfo,
 const props = defineProps({
   acteurId: String,
 })
+const messageErreur = ref('')
 const acteurId = ref(props.acteurId)
-const userInfo = await getDataUserInfo('DocumentAucunAcces')
-const idEmploye = userInfo.id_employe
-const bInGroupDocumentAucunAcces = ref(userInfo.bingroupe)
-const acteurData = await getActeurData(acteurId.value)
-const acteurDataAdresse = await getActeurDataAdresse(acteurId.value)
-const acteurDataComplement = await getActeurDataComplement(acteurId.value)
-const acteurDataActeurLie = await getActeurDataActeurLie(acteurId.value)
-const acteurDataRole = await getActeurDataRole(acteurId.value, idEmploye)
-//console.log(userInfo)
-//console.log(acteurData)
-//console.log(acteurDataAdresse)
-//console.log(acteurDataComplement)
-//console.log(acteurDataActeurLie)
-//console.log(acteurDataRole)
+const bInGroupDocumentAucunAcces = ref(1)
+const acteurD = ref({})
+let acteurDataAdresse = ref([])
+let acteurDataComplement = ref([])
+let acteurDataActeurLie = ref([])
+let acteurDataRole = []
+let acteurDRole = []
+let acteurDCompl = []
+const nbrRoles = ref(0)
 
-const acteurD = acteurData[0]
-//Compléments
-//tout le binz ci-dessous pour afficher plus joli les cas avec plusieurs type de complément identique
-//et les cas spéciaux avec un url 
-const transformActeurDCompl = (acteurDataComplement) => {
-  const nbrComplements = acteurDataComplement.length
-  const aActeurDCompl = []
-  if (nbrComplements > 0) {
-    let idTypeComplement = acteurDataComplement[0].acteurcomplementtypeid
-    let idTypeComplementPrec = idTypeComplement
-    let typeComplement = acteurDataComplement[0].acteurcomplementtype
-    let urlRegCom
-    let complement = '', complementplus
-    if (idTypeComplement == '22') {
-      urlRegCom = acteurDataComplement[0].acteurcomplement
-    } else if (idTypeComplement == '8') {
-      complement = `<a class="ago" href="${acteurDataComplement[0].acteurcomplement}" target="_blank">${acteurDataComplement[0].acteurcomplement}</a>`
-    } else if (idTypeComplement == '24') {
-      complement = `<a class="ago" href="https://debiteur.lausanne.ch/debiteur-ui/details-debiteur/${acteurDataComplement[0].acteurcomplement}" target="_blank">${acteurDataComplement[0].acteurcomplement}</a>`
-    } else {
-      complement = acteurDataComplement[0].acteurcomplement
-    }
-    let oActeurDCompl 
-    for (let i=1; i<acteurDataComplement.length; i++) {
-      idTypeComplement = acteurDataComplement[i].acteurcomplementtypeid
+const userInfo = await getDataUserInfo('DocumentAucunAcces')
+if (userInfo.hasOwnProperty('id_employe')) {
+  const idEmploye = userInfo.id_employe
+  bInGroupDocumentAucunAcces.value = userInfo.bingroupe
+  let acteurData = await getActeurData(acteurId.value)
+  if (acteurData.hasOwnProperty('message')) {
+    messageErreur.value += acteurData.message + '<br>'
+    acteurData = []
+  }
+  acteurDataAdresse.value = await getActeurDataAdresse(acteurId.value)
+  if (acteurDataAdresse.value.hasOwnProperty('message')) {
+    messageErreur.value += acteurDataAdresse.value.message + '<br>'
+    acteurDataAdresse.value = []
+  }
+  acteurDataComplement.value = await getActeurDataComplement(acteurId.value)
+  if (acteurDataComplement.value.hasOwnProperty('message')) {
+    messageErreur.value += acteurDataComplement.value.message + '<br>'
+    acteurDataComplement.value = []
+  }
+  acteurDataActeurLie.value = await getActeurDataActeurLie(acteurId.value)
+  if (acteurDataActeurLie.value.hasOwnProperty('message')) {
+    messageErreur.value += acteurDataActeurLie.value.message + '<br>'
+    acteurDataActeurLie.value = []
+  }
+  acteurDataRole = await getActeurDataRole(acteurId.value, idEmploye)
+  if (acteurDataRole.hasOwnProperty('message')) {
+    messageErreur.value += acteurDataRole.message + '<br>'
+    acteurDataRole = []
+  }
+  //console.log(userInfo)
+  //console.log(acteurData)
+  //console.log(acteurDataAdresse)
+  //console.log(acteurDataComplement)
+  //console.log(acteurDataActeurLie)
+  //console.log(acteurDataRole)
+
+  if (acteurData.length > 0) {
+    acteurD.value = acteurData[0]
+  }
+  //Compléments
+  //tout le binz ci-dessous pour afficher plus joli les cas avec plusieurs type de complément identique
+  //et les cas spéciaux avec un url 
+  const transformActeurDCompl = (acteurDataComplement) => {
+    const nbrComplements = acteurDataComplement.length
+    const aActeurDCompl = []
+    if (nbrComplements > 0) {
+      let idTypeComplement = acteurDataComplement[0].acteurcomplementtypeid
+      let idTypeComplementPrec = idTypeComplement
+      let typeComplement = acteurDataComplement[0].acteurcomplementtype
+      let urlRegCom
+      let complement = '', complementplus
       if (idTypeComplement == '22') {
-        urlRegCom = acteurDataComplement[i].acteurcomplement
-        idTypeComplementPrec = '22' 
+        urlRegCom = acteurDataComplement[0].acteurcomplement
+      } else if (idTypeComplement == '8') {
+        complement = `<a class="ago" href="${acteurDataComplement[0].acteurcomplement}" target="_blank">${acteurDataComplement[0].acteurcomplement}</a>`
+      } else if (idTypeComplement == '24') {
+        complement = `<a class="ago" href="https://debiteur.lausanne.ch/debiteur-ui/details-debiteur/${acteurDataComplement[0].acteurcomplement}" target="_blank">${acteurDataComplement[0].acteurcomplement}</a>`
       } else {
-        if (idTypeComplement != idTypeComplementPrec) {
-          if (idTypeComplementPrec != 22) {
-            oActeurDCompl = {
-              "acteurcomplementtype" : typeComplement, 
-              "acteurcomplement" : complement, 
-            }
-            aActeurDCompl.push(oActeurDCompl)
-          }
-          idTypeComplementPrec = idTypeComplement
-          typeComplement = acteurDataComplement[i].acteurcomplementtype
-          if (idTypeComplement == '21') {
-            complement = `<a class="ago" href="${urlRegCom}" target="_blank">${acteurDataComplement[i].acteurcomplement}</a>`
-          } else if (idTypeComplement == '8') {
-            complement = `<a class="ago" href="${acteurDataComplement[i].acteurcomplement}" target="_blank">${acteurDataComplement[i].acteurcomplement}</a>`
-          } else if (idTypeComplement == '24') {
-            complement = `<a class="ago" href="https://debiteur.lausanne.ch/debiteur-ui/details-debiteur/${acteurDataComplement[i].acteurcomplement}" target="_blank">${acteurDataComplement[i].acteurcomplement}</a>`
-          } else {
-              complement = acteurDataComplement[i].acteurcomplement
-            }
+        complement = acteurDataComplement[0].acteurcomplement
+      }
+      let oActeurDCompl 
+      for (let i=1; i<acteurDataComplement.length; i++) {
+        idTypeComplement = acteurDataComplement[i].acteurcomplementtypeid
+        if (idTypeComplement == '22') {
+          urlRegCom = acteurDataComplement[i].acteurcomplement
+          idTypeComplementPrec = '22' 
         } else {
-          if (idTypeComplement == '8') {
-            complementplus = `<a class="ago" href="${acteurDataComplement[i].acteurcomplement}" target="_blank">${acteurDataComplement[i].acteurcomplement}</a>`
-          } else if (idTypeComplement == '24') {
-            complement = `<a class="ago" href="https://debiteur.lausanne.ch/debiteur-ui/details-debiteur/${acteurDataComplement[i].acteurcomplement}" target="_blank">${acteurDataComplement[i].acteurcomplement}</a>`
+          if (idTypeComplement != idTypeComplementPrec) {
+            if (idTypeComplementPrec != 22) {
+              oActeurDCompl = {
+                "acteurcomplementtype" : typeComplement, 
+                "acteurcomplement" : complement, 
+              }
+              aActeurDCompl.push(oActeurDCompl)
+            }
+            idTypeComplementPrec = idTypeComplement
+            typeComplement = acteurDataComplement[i].acteurcomplementtype
+            if (idTypeComplement == '21') {
+              complement = `<a class="ago" href="${urlRegCom}" target="_blank">${acteurDataComplement[i].acteurcomplement}</a>`
+            } else if (idTypeComplement == '8') {
+              complement = `<a class="ago" href="${acteurDataComplement[i].acteurcomplement}" target="_blank">${acteurDataComplement[i].acteurcomplement}</a>`
+            } else if (idTypeComplement == '24') {
+              complement = `<a class="ago" href="https://debiteur.lausanne.ch/debiteur-ui/details-debiteur/${acteurDataComplement[i].acteurcomplement}" target="_blank">${acteurDataComplement[i].acteurcomplement}</a>`
+            } else {
+                complement = acteurDataComplement[i].acteurcomplement
+              }
           } else {
-            complementplus = acteurDataComplement[i].acteurcomplement
+            if (idTypeComplement == '8') {
+              complementplus = `<a class="ago" href="${acteurDataComplement[i].acteurcomplement}" target="_blank">${acteurDataComplement[i].acteurcomplement}</a>`
+            } else if (idTypeComplement == '24') {
+              complement = `<a class="ago" href="https://debiteur.lausanne.ch/debiteur-ui/details-debiteur/${acteurDataComplement[i].acteurcomplement}" target="_blank">${acteurDataComplement[i].acteurcomplement}</a>`
+            } else {
+              complementplus = acteurDataComplement[i].acteurcomplement
+            }
+            complement = `${complement}<br>${complementplus}`  
           }
-          complement = `${complement}<br>${complementplus}`  
         }
       }
-    }
-    typeComplement = typeComplement.replace("ABACUS", "")
-    oActeurDCompl = {
-      "acteurcomplementtype" : typeComplement, 
-      "acteurcomplement" : complement, 
-    }
-    aActeurDCompl.push(oActeurDCompl) 
-  } 
-  return aActeurDCompl
-}
-const acteurDCompl = transformActeurDCompl(acteurDataComplement)
-//console.log(acteurDCompl)
-
-//Rôles
-const nbrRoles = acteurDataRole.length
-//Tout ce binz pour regrouper par rôle
-const transformActeurDRole = (acteurDataRole) => {
-  const aActeurDRole = []
-  let oActeurDRole
-  //Liste distincte des rôles
-  const aacRoleRole = [...new Set(acteurDataRole.map(item => item.acrolerole))]
-  const nbracRoleRole = aacRoleRole.length
-  //console.log(aacRoleRole)
-  //Regroupement par rôle
-  let role, nbrEls
-  for (let i=0; i<nbracRoleRole; i++) {
-    role = aacRoleRole[i]
-    const roleEls = acteurDataRole.filter(item => item.acrolerole === role);
-    nbrEls = roleEls.length
-    oActeurDRole = {
-      "acteurrolerole" : role,
-      "acteurnbrelements" : nbrEls,
-      "acteurroleelements" : roleEls
-    }
-    aActeurDRole.push(oActeurDRole)
+      typeComplement = typeComplement.replace("ABACUS", "")
+      oActeurDCompl = {
+        "acteurcomplementtype" : typeComplement, 
+        "acteurcomplement" : complement, 
+      }
+      aActeurDCompl.push(oActeurDCompl) 
+    } 
+    return aActeurDCompl
   }
-  return aActeurDRole
+  acteurDCompl = transformActeurDCompl(acteurDataComplement)
+  //console.log(acteurDCompl)
+
+  //Rôles
+  nbrRoles.value = acteurDataRole.length
+  //Tout ce binz pour regrouper par rôle
+  const transformActeurDRole = (acteurDataRole) => {
+    const aActeurDRole = []
+    let oActeurDRole
+    //Liste distincte des rôles
+    const aacRoleRole = [...new Set(acteurDataRole.map(item => item.acrolerole))]
+    const nbracRoleRole = aacRoleRole.length
+    //console.log(aacRoleRole)
+    //Regroupement par rôle
+    let role, nbrEls
+    for (let i=0; i<nbracRoleRole; i++) {
+      role = aacRoleRole[i]
+      const roleEls = acteurDataRole.filter(item => item.acrolerole === role);
+      nbrEls = roleEls.length
+      oActeurDRole = {
+        "acteurrolerole" : role,
+        "acteurnbrelements" : nbrEls,
+        "acteurroleelements" : roleEls
+      }
+      aActeurDRole.push(oActeurDRole)
+    }
+    return aActeurDRole
+  }
+  if (nbrRoles.value > 0) {
+    acteurDRole = transformActeurDRole(acteurDataRole)
+  }  
+} else {
+  if (userInfo.hasOwnProperty('message')) {
+    messageErreur.value += userInfo.message + '<br>'
+  } else {
+    messageErreur.value += 'erreur inconnue :: getDataUserInfo<br>'  
+  }
 }
-const acteurDRole = transformActeurDRole(acteurDataRole)
-//console.log(acteurDRole)
 </script>
